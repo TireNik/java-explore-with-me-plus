@@ -8,10 +8,10 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "endpoint_hit")
+@Table(name = "stats")
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class EndpointHit {
+public class Stat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
