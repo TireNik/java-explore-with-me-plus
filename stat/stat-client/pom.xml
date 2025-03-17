@@ -5,17 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ru.practicum</groupId>
-        <artifactId>explore-with-me</artifactId>
+        <artifactId>stat</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>stat</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>stat-dto</module>
-        <module>stat-client</module>
-        <module>stat-server</module>
-    </modules>
+    <artifactId>stat-client</artifactId>
+
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
