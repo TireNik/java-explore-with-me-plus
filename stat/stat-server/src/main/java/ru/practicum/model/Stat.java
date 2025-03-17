@@ -23,5 +23,6 @@ public class Stat {
 
     String ip;
 
+    @Column(name = "date_stat")
     LocalDateTime timeStamp;
 }
