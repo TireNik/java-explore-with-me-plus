@@ -3,12 +3,12 @@ package ru.practicum.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;
-import ru.practicum.EndpointHitDto;
-import ru.practicum.model.EndpointHit;
+import ru.practicum.StatDto;
+import ru.practicum.model.Stat;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface EndpointHitMapper {
-    EndpointHit toEntity(EndpointHitDto endpointHitDto);
+    Stat toEntity(StatDto endpointHitDto);
 
-    EndpointHitDto toEndpointHitDto(EndpointHit endpointHit);
+    StatDto toEndpointHitDto(Stat endpointHit);
 }

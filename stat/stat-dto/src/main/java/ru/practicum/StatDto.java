@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Value
 @Data
-public class EndpointHitDto {
+public class StatDto {
     @NotBlank
     String app;
     @NotBlank
