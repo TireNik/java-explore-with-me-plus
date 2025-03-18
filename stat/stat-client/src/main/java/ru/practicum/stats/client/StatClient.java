@@ -19,7 +19,7 @@ public class StatClient {
 
     private final RestClient restClient;
     private final String serverUri;
-    public StatClient(@Value("${stat.server.url}") String serverUri) {
+    public StatClient(@Value("${stats-server.url}") String serverUri) {
         this.restClient = RestClient.create();
         this.serverUri = serverUri;
     }
