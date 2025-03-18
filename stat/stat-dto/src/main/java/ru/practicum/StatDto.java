@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Value
 @Data
 public class StatDto {
+    Long id;
     @NotBlank
     String app;
     @NotBlank
