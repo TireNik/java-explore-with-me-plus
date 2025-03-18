@@ -16,7 +16,6 @@ public class Stat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
 
-    @Column(name = "app_name")
     String app;
 
     String uri;
