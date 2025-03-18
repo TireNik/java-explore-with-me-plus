@@ -1,7 +1,9 @@
 package ru.practicum;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.Value;
 
@@ -17,6 +19,7 @@ public class StatDto {
     String uri;
     @NotBlank
     String ip;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime timeStamp;
+    @NotNull
+
+    String timestamp;
 }
