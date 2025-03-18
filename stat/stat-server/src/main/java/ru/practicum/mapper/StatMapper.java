@@ -8,7 +8,7 @@ import ru.practicum.model.Stat;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface StatMapper {
-    Stat toEntity(StatDto endpointHitDto);
+    Stat toEntity(StatDto statDto);
 
-    StatDto toEndpointHitDto(Stat endpointHit);
+    StatDto toDto(Stat entity);
 }

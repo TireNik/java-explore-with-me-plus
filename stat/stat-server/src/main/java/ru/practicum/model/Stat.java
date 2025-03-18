@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class Stat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int id;
+    Long id;
 
     String app;
 
@@ -23,5 +23,5 @@ public class Stat {
     String ip;
 
     @Column(name = "date_stat")
-    LocalDateTime timeStamp;
+    LocalDateTime timestamp;
 }
