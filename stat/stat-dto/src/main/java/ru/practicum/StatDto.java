@@ -16,6 +16,5 @@ public class StatDto {
     @NotBlank
     String ip;
     @NotNull
-
     String timestamp;
 }
