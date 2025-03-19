@@ -22,7 +22,7 @@ import static ru.practicum.util.PathConstants.ADMIN_USERS_BY_ID;
 @RequestMapping(PathConstants.USERS_PATH)
 @RequiredArgsConstructor
 @Validated
-public class UserController {
+public class UserControllerAdmin {
 
     private final UserService userService;
 
