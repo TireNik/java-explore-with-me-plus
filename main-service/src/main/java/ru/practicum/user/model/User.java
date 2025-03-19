@@ -1,4 +1,4 @@
-package ru.practicum.model;
+package ru.practicum.user.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
