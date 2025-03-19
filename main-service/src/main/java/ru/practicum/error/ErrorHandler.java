@@ -12,11 +12,19 @@ import java.util.Collections;
 @RestControllerAdvice
 public class ErrorHandler {
 
-    @ExceptionHandler(Exception.class)
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiError handleException(Exception e) {
         log.error("500 {}", e.getMessage(), e);
         return new ApiError("500 INTERNAL_SERVER_ERROR", "Error occurred",
+                e.getMessage(), Collections.singletonList(e.getMessage()));
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError handleNotFoundException(NotFoundException e) {
+        log.warn("404 {}", e.getMessage(), e);
+        return new ApiError("404 NOT_FOUND", "The required object was not found.",
                 e.getMessage(), Collections.singletonList(e.getMessage()));
     }
 }
