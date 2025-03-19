@@ -1,4 +1,4 @@
-package ru.practicum.error.exeption;
+package ru.practicum.error.exception;
 
 public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(Class<?> entityClass, Long entityId) {

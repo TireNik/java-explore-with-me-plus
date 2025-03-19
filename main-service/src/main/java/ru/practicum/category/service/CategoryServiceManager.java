@@ -10,8 +10,8 @@ import ru.practicum.category.dto.CategoryDtoNew;
 import ru.practicum.category.mapper.CategoryMapper;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
-import ru.practicum.error.exeption.ForbiddenOperationException;
-import ru.practicum.error.exeption.ResourceNotFoundException;
+import ru.practicum.error.exception.ForbiddenOperationException;
+import ru.practicum.error.exception.ResourceNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
