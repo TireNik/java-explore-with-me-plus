@@ -1,6 +1,7 @@
 package ru.practicum.user.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ import java.util.List;
 
 import static ru.practicum.util.PathConstants.ADMIN_USERS_BY_ID;
 
+@Slf4j
 @RestController
 @RequestMapping(PathConstants.USERS_PATH)
 @RequiredArgsConstructor
@@ -30,18 +32,22 @@ public class UserController {
             @RequestParam(required = false) List<Long> ids,
             @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(defaultValue = "10") @Positive Integer size) {
+        log.info("Эндпоинт /admin/users. GET запрос на получение админом списка из {} пользователей, начиная с {}",
+                size, from);
         return userService.getUsers(ids, from, size);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto createUser(@Valid @RequestBody NewUserRequest newUser) {
+        log.info("Эндпоинт /admin/users. POST запрос на создание админом пользователя {}.", newUser);
         return userService.create(newUser);
     }
 
     @DeleteMapping(ADMIN_USERS_BY_ID)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteUser(@PathVariable("user-id") @Positive Long userId) {
+    public void deleteUser(@PathVariable @Positive Long userId) {
+        log.info("Эндпоинт /admin/users/{userId}. DELETE запрос на удаление админом пользователя с id {}.", userId);
         userService.delete(userId);
     }
 }
