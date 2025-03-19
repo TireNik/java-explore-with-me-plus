@@ -8,13 +8,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.StatDto;
+import ru.practicum.error.NotFoundException;
 import ru.practicum.events.dto.*;
 import ru.practicum.events.mapper.EventMapper;
 import ru.practicum.events.model.Event;
 import ru.practicum.events.model.EventSort;
+import ru.practicum.events.model.EventState;
 import ru.practicum.events.repository.EventRepository;
+import ru.practicum.stats.client.StatClient;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,6 +32,8 @@ public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
+    private final StatClient statClient;
+
 
     @Override
     public List<EventShortDto> getPublicEvents(String text, List<Long> categories, Boolean paid,
@@ -83,4 +91,22 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public EventFullDto getPublishedEventById(Long id, HttpServletRequest request) {
+        Event event = eventRepository.findById(id)
+                .filter(e -> e.getState() == EventState.PUBLISHED)
+                .orElseThrow(() -> new NotFoundException("Event with id=" + id + " was not found"));
+
+        // Сохраняем информацию о просмотре в сервисе статистики
+        StatDto statDto = new StatDto(
+                null,
+                "event-service",
+                request.getRequestURI(),
+                request.getRemoteAddr(),
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        );
+        statClient.hit(statDto);
+
+        return eventMapper.toEventFullDto(event);
+    }
 }

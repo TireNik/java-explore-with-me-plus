@@ -9,8 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.events.dto.EventFullDto;
 import ru.practicum.events.dto.EventShortDto;
-import ru.practicum.events.model.EventSort;
 import ru.practicum.events.service.EventService;
 
 import java.time.LocalDateTime;
@@ -41,7 +41,7 @@ public class PublicEventController {
                                          @RequestParam(defaultValue = "false")
                                          Boolean onlyAvailable,
                                          @RequestParam(required = false)
-                                         EventSort sort,
+                                         String sort,
                                          @RequestParam(defaultValue = "0")
                                          @Min(value = 0)
                                          int from,
@@ -50,5 +50,11 @@ public class PublicEventController {
                                          HttpServletRequest request) {
         return eventService.getPublicEvents(
                 text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, request);
+    }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public EventFullDto getEventById(@PathVariable Long id, HttpServletRequest request) {
+        return eventService.getPublishedEventById(id, request);
     }
 }
