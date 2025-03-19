@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
+import ru.practicum.category.model.Category;
+import ru.practicum.user.model.User;
 
 import java.time.LocalDateTime;
 
@@ -42,7 +44,7 @@ public class Event {
     Category category;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "initiator_id")
     User initiator;
 
     @ManyToOne
