@@ -3,8 +3,10 @@ package ru.practicum.events.dto;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
+import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.events.model.Event;
 import ru.practicum.events.model.EventState;
+import ru.practicum.user.dto.UserShortDto;
 
 /**
  * DTO for {@link Event}
