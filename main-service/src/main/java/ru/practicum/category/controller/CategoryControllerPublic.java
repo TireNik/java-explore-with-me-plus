@@ -13,17 +13,20 @@ import ru.practicum.category.service.CategoryService;
 
 import java.util.List;
 
+import static ru.practicum.util.PathConstants.CATEGORY_ID;
+import static ru.practicum.util.PathConstants.PUBLIC_CATEGORIES;
+
 @Validated
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/categories")
+@RequestMapping(PUBLIC_CATEGORIES)
 public class CategoryControllerPublic {
     private final CategoryService categoryService;
 
-    @GetMapping("/{catId}")
+    @GetMapping(CATEGORY_ID)
     public ResponseEntity<CategoryDto> getById(@PathVariable Long catId) {
-        log.info("Эндпоинт /categories. GET запрос  на получение категории(public) с id {}.", catId);
+        log.info("Эндпоинт /categories. GET запрос на получение категории(public) с id {}.", catId);
         return new ResponseEntity<>(categoryService.getByIDCategoryPublic(catId), HttpStatus.OK);
     }
 

@@ -14,6 +14,8 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import java.util.List;
 
+import static ru.practicum.util.PathConstants.ADMIN_USERS_BY_ID;
+
 @RestController
 @RequestMapping(PathConstants.USERS_PATH)
 @RequiredArgsConstructor
@@ -37,7 +39,7 @@ public class UserController {
         return userService.create(newUser);
     }
 
-    @DeleteMapping(PathConstants.USERS_PATH + PathConstants.USER_ID_PATH)
+    @DeleteMapping(ADMIN_USERS_BY_ID)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable("user-id") @Positive Long userId) {
         userService.delete(userId);
