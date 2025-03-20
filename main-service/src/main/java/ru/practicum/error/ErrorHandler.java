@@ -1,31 +1,80 @@
 package ru.practicum.error;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.practicum.error.exception.ConflictException;
+import ru.practicum.error.exception.ForbiddenOperationException; // Добавь импорт
 import ru.practicum.error.exception.NotFoundException;
+import ru.practicum.error.exception.ResourceNotFoundException;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ApiError handleException(Exception e) {
-        log.error("500 {}", e.getMessage(), e);
-        return new ApiError("500 INTERNAL_SERVER_ERROR", "Error occurred",
-                e.getMessage(), Collections.singletonList(e.getMessage()));
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleValidationException(MethodArgumentNotValidException e) {
+        List<String> errors = e.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .collect(Collectors.toList());
+        log.warn("400 {}", e.getMessage(), e);
+        return new ApiError("BAD_REQUEST", "Некорректный запрос", "Validation failed", errors);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleConstraintViolation(ConstraintViolationException e) {
+        List<String> errors = e.getConstraintViolations()
+                .stream()
+                .map(cv -> cv.getPropertyPath() + ": " + cv.getMessage())
+                .collect(Collectors.toList());
+        log.warn("400 {}", e.getMessage(), e);
+        return new ApiError("BAD_REQUEST", "Некорректный запрос", "Validation failed", errors);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError handleConflictException(ConflictException e) {
+        log.warn("409 {}", e.getMessage(), e);
+        return new ApiError("CONFLICT", "Конфликт данных", e.getMessage(), Collections.singletonList(e.getMessage()));
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError handleForbiddenOperationException(ForbiddenOperationException e) {
+        log.warn("409 {}", e.getMessage(), e);
+        return new ApiError("CONFLICT", "Нарушение условий операции", e.getMessage(), Collections.singletonList(e.getMessage()));
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ApiError handleNotFoundException(NotFoundException e) {
         log.warn("404 {}", e.getMessage(), e);
-        return new ApiError("404 NOT_FOUND", "The required object was not found.",
-                e.getMessage(), Collections.singletonList(e.getMessage()));
+        return new ApiError("NOT_FOUND", "Объект не найден", e.getMessage(), Collections.singletonList(e.getMessage()));
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError handleResourceNotFoundException(ResourceNotFoundException e) {
+        log.warn("404 {}", e.getMessage(), e);
+        return new ApiError("NOT_FOUND", "Объект не найден", e.getMessage(), Collections.singletonList(e.getMessage()));
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ApiError handleException(Exception e) {
+        log.error("500 {}", e.getMessage(), e);
+        return new ApiError("INTERNAL_SERVER_ERROR", "Ошибка сервера", e.getMessage(), Collections.singletonList(e.getMessage()));
     }
 }
