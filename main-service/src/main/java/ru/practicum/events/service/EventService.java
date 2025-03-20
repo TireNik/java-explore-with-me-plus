@@ -14,4 +14,7 @@ public interface EventService {
                                         HttpServletRequest request);
 
     EventFullDto getPublishedEventById(Long id, HttpServletRequest request);
+
+    EventFullDto getEventById(List<Long> userIds, List<String> states, List<Long> categories, String rangeStart,
+                              String rangeEnd, Long from, Long size, HttpServletRequest request);
 }
