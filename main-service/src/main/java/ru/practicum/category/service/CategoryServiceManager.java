@@ -38,10 +38,14 @@ public class CategoryServiceManager implements CategoryService {
     @Override
     @Transactional
     public CategoryDto updateCategoryAdmin(CategoryDtoNew categoryDtoNew, Long catId) {
-        Category category = categoryMapper.toCategory(categoryDtoNew);
         if (!categoryRepository.existsById(catId)) {
             throw new ResourceNotFoundException(Category.class, catId);
         }
+        Optional<Category> existingCategory = categoryRepository.findByName(categoryDtoNew.getName());
+        if (existingCategory.isPresent() && !existingCategory.get().getId().equals(catId)) {
+            throw new ConflictException("Категория с именем '" + categoryDtoNew.getName() + "' уже существует.");
+        }
+        Category category = categoryMapper.toCategory(categoryDtoNew);
         category.setId(catId);
         log.info("Обновление админом категории с id {} на {}.", catId, categoryDtoNew);
         return categoryMapper.toCategoryDto(categoryRepository.save(category));
