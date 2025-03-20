@@ -2,7 +2,6 @@ package ru.practicum.events.controller;
 
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;

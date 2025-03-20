@@ -109,4 +109,12 @@ public class EventServiceImpl implements EventService {
 
         return eventMapper.toEventFullDto(event);
     }
+
+    @Override
+    public List<EventFullDto> getEventById(List<Long> userIds, List<String> states, List<Long> categories,
+                                           String rangeStart, String rangeEnd, Long from, Long size,
+                                           HttpServletRequest request) {
+
+        return new ArrayList<>();
+    }
 }
