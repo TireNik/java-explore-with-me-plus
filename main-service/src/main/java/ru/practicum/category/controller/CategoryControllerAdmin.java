@@ -38,10 +38,9 @@ public class CategoryControllerAdmin {
     }
 
     @DeleteMapping(CATEGORY_ID)
-    public ResponseEntity<?> delete(@PathVariable Long catId) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long catId) {
+        log.info("Эндпоинт /admin/categories/{}. DELETE запрос на удаление админом категории с id {}.", catId, catId);
         categoryService.deleteCategoryAdmin(catId);
-        log.info("Эндпоинт /admin/categories/{}. DELETE запрос на удаление админом категории с id {}.", catId,
-                catId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
