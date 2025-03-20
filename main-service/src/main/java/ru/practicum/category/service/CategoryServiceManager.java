@@ -10,6 +10,7 @@ import ru.practicum.category.dto.CategoryDtoNew;
 import ru.practicum.category.mapper.CategoryMapper;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
+import ru.practicum.error.exception.ConflictException;
 import ru.practicum.error.exception.ForbiddenOperationException;
 import ru.practicum.error.exception.ResourceNotFoundException;
 
@@ -27,6 +28,9 @@ public class CategoryServiceManager implements CategoryService {
     @Override
     @Transactional
     public CategoryDto createCategoryAdmin(CategoryDtoNew categoryDtoNew) {
+        if (categoryRepository.existsByName(categoryDtoNew.getName())) {
+            throw new ConflictException("Категория с именем '" + categoryDtoNew.getName() + "' уже существует.");
+        }
         log.info("Создание новой категории админом {}.", categoryDtoNew);
         return categoryMapper.toCategoryDto(categoryRepository.save(categoryMapper.toCategory(categoryDtoNew)));
     }
