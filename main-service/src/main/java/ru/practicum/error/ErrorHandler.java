@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -12,13 +13,25 @@ import ru.practicum.error.exception.ForbiddenOperationException; // Добавь
 import ru.practicum.error.exception.NotFoundException;
 import ru.practicum.error.exception.ResourceNotFoundException;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleMissingParameter(MissingServletRequestParameterException ex) {
+        return new ApiError(
+                Collections.singletonList(ex.getMessage()),
+                ex.getMessage(),
+                "Incorrectly made request.",
+                HttpStatus.BAD_REQUEST.name(),
+                LocalDateTime.now()
+        );
+    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -27,7 +40,7 @@ public class ErrorHandler {
                 .getFieldErrors()
                 .stream()
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .collect(Collectors.toList());
+                .toList();
         log.warn("400 {}", e.getMessage(), e);
         return new ApiError("BAD_REQUEST", "Некорректный запрос", "Validation failed", errors);
     }
@@ -38,7 +51,7 @@ public class ErrorHandler {
         List<String> errors = e.getConstraintViolations()
                 .stream()
                 .map(cv -> cv.getPropertyPath() + ": " + cv.getMessage())
-                .collect(Collectors.toList());
+                .toList();
         log.warn("400 {}", e.getMessage(), e);
         return new ApiError("BAD_REQUEST", "Некорректный запрос", "Validation failed", errors);
     }
