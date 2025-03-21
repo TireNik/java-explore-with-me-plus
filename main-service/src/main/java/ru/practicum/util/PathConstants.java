@@ -6,46 +6,28 @@ public class PathConstants {
         throw new AssertionError("Utility class should not be instantiated");
     }
 
-    // Базовые пути для контроллеров
-    public static final String ADMIN_USERS = "/admin/users";
-    public static final String ADMIN_CATEGORIES = "/admin/categories";
-    public static final String ADMIN_EVENTS = "/admin/events";
-    public static final String USER_EVENTS = "/users/{userId}/events";
-    public static final String USER_REQUESTS = "/users/{userId}/requests";
-    public static final String EVENTS = "/events";
-    public static final String PUBLIC_CATEGORIES = "/categories";
+    public static final String CATEGORIES = "/categories";
     public static final String COMPILATIONS = "/compilations";
+    public static final String EVENTS = "/events";
+    public static final String USERS = "/users";
 
-    // Константы для методов (добавляются к базовому пути)
-    // Для UserControllerAdmin (/admin/users)
+    public static final String CATEGORY_ID = "/{catId}";
+    public static final String COMPILATION_ID = "/{compId}";
+    public static final String EVENT_ID = "/{eventId}";
     public static final String USER_ID = "/{userId}";
 
-    // Для CategoryControllerAdmin (/admin/categories)
-    public static final String CATEGORY_ID = "/{catId}";
+    public static final String ADMIN_CATEGORIES = "/admin/categories";
+    public static final String ADMIN_COMPILATIONS = "/admin/compilations";
+    public static final String ADMIN_COMPILATION_BY_ID = "/admin/compilations" + COMPILATION_ID;
+    public static final String ADMIN_EVENTS = "/admin/events";
+    public static final String ADMIN_USERS = "/admin/users";
 
-    // Для EventControllerAdmin (/admin/events)
-    public static final String EVENT_ID = "/{eventId}";
-    public static final String EVENT_COMMENTS = "/{eventId}/comments";
-
-    // Для UserEventController (/users/{userId}/events)
-    public static final String USER_EVENT_ID = "/{eventId}";
-    public static final String USER_EVENT_REQUESTS = "/{eventId}/requests";
-
-    // Для UserRequestController (/users/{userId}/requests)
-    public static final String REQUEST_ID_CANCEL = "/{requestId}/cancel";
-
-    // Для EventController (/events)
-    public static final String PUBLIC_EVENT_ID = "/{eventId}";
-    public static final String PUBLIC_EVENT_REQUESTS = "/{eventId}/requests";
-    public static final String PUBLIC_EVENT_COMMENTS = "/{eventId}/comments";
-    public static final String PUBLIC_COMMENT_ID = "/{eventId}/comments/{commentId}";
-
-    // Для CategoryController (/categories)
-    public static final String PUBLIC_CATEGORY_ID = "/{catId}";
-
-    // Для CompilationController (/compilations)
-    public static final String COMPILATION_ID = "/{compId}";
-
-    // Отдельные пути (без базового контроллера)
-    public static final String ADMIN_COMMENTS_BY_ID = "/admin/comments/{commentId}";
+    public static final String EVENT_PUBLISH = "/{eventId}/publish";
+    public static final String COMPILATION_BY_ID = COMPILATIONS + COMPILATION_ID;
+    public static final String PRIVATE_EVENTS = "/{userId}/events";
+    public static final String PRIVATE_EVENT_BY_ID = "/{userId}/events" + EVENT_ID;
+    public static final String PRIVATE_REQUESTS = "/{userId}/requests";
+    public static final String EVENT_REQUESTS = "/{eventId}/requests";
+    public static final String PRIVATE_EVENT_REQUESTS = PRIVATE_EVENTS + EVENT_REQUESTS;
+    public static final String PRIVATE_REQUEST_CANCEL = PRIVATE_REQUESTS + "/{requestId}/cancel";
 }
