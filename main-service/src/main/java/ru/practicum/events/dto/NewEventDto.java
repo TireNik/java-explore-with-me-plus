@@ -10,28 +10,32 @@ import ru.practicum.events.model.Event;
  */
 @Data
 public class NewEventDto {
-    @NotNull
+    @NotBlank
     @Size(min = 20, max = 2000)
-    @NotEmpty
-    @NotBlank
     String annotation;
-    @NotNull
+
+    @NotBlank
     @Size(min = 3, max = 120)
-    @NotEmpty
-    @NotBlank
     String title;
-    @NotNull
-    String eventDate;
-    @NotNull
-    @Size(min = 20, max = 7000)
-    @NotEmpty
+
     @NotBlank
+    String eventDate;
+
+    @NotBlank
+    @Size(min = 20, max = 7000)
     String description;
+
     @NotNull
     Long category;
+
     @NotNull
     LocationDto location;
+
+    Boolean paid;
+
     @PositiveOrZero
     Integer participantLimit;
+
     Boolean requestModeration = true;
+
 }

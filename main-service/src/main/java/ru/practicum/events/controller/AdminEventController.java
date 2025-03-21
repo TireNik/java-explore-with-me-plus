@@ -1,38 +1,36 @@
 package ru.practicum.events.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedModel;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.events.dto.EventFullDto;
-import ru.practicum.events.model.Event;
-import ru.practicum.events.repository.EventRepository;
+import ru.practicum.events.dto.UpdateEventAdminRequestDto;
 import ru.practicum.events.service.EventService;
 
-import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/admin/events")
 @RequiredArgsConstructor
 public class AdminEventController {
 
-    private final EventRepository eventRepository;
-
     private final EventService eventService;
-    private final ObjectMapper objectMapper;
 
     @GetMapping
-    public List<EventFullDto> getEventById(List<Long> userIds, List<String> states, List<Long> categories, String rangeStart,
-                                           String rangeEnd, Long from, Long size, HttpServletRequest request) {
-        return eventService.getEventById(userIds, states, categories, rangeStart, rangeEnd, from, size, request);
+    public List<EventFullDto> getEventById(@RequestParam(required = false) List<Long> userIds,
+                                           @RequestParam(required = false) List<String> states,
+                                           @RequestParam(required = false) List<Long> categories,
+                                           @RequestParam(required = false) String rangeStart,
+                                           @RequestParam(required = false) String rangeEnd,
+                                           @RequestParam(name = "from", required = false, defaultValue = "0") Long from,
+                                           @RequestParam(name = "size", required = false, defaultValue = "10") Long size) {
+        return eventService.getAdminEventById(userIds, states, categories, rangeStart, rangeEnd, from, size);
+    }
+
+    @PatchMapping("/{eventId}")
+    public ResponseEntity<EventFullDto> updateEvent(@PathVariable Long eventId, @Valid @RequestBody UpdateEventAdminRequestDto dto) {
+        EventFullDto eventFullDto = eventService.updateEventAdmin(eventId, dto);
+        return ResponseEntity.ok(eventFullDto);
     }
 }
