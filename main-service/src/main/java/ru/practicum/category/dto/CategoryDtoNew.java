@@ -11,6 +11,6 @@ import lombok.*;
 @NoArgsConstructor
 public class CategoryDtoNew {
     @NotBlank(message = "Название категории обязательно.")
-    @Size(min = 1, max = 60, message = "Ограничение длины названия категории. Не более 60 символов и не менее 1 символа.")
+    @Size(min = 1, max = 50, message = "Ограничение длины названия категории. Не более 50 символов и не менее 1 символа.")
     private String name;
 }
