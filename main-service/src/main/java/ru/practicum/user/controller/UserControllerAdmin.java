@@ -8,18 +8,18 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.user.dto.NewUserRequest;
 import ru.practicum.user.dto.UserDto;
 import ru.practicum.user.service.UserService;
-import ru.practicum.util.PathConstants;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import java.util.List;
 
-import static ru.practicum.util.PathConstants.ADMIN_USERS_BY_ID;
+import static ru.practicum.util.PathConstants.ADMIN_USERS;
+import static ru.practicum.util.PathConstants.USER_ID;
 
 @Slf4j
 @RestController
-@RequestMapping(PathConstants.USERS_PATH)
+@RequestMapping(ADMIN_USERS)
 @RequiredArgsConstructor
 @Validated
 public class UserControllerAdmin {
@@ -44,7 +44,7 @@ public class UserControllerAdmin {
         return userService.create(newUser);
     }
 
-    @DeleteMapping(ADMIN_USERS_BY_ID)
+    @DeleteMapping(USER_ID)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable @Positive Long userId) {
         log.info("Эндпоинт /admin/users/{userId}. DELETE запрос на удаление админом пользователя с id {}.", userId);

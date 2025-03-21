@@ -10,8 +10,10 @@ import ru.practicum.category.dto.CategoryDtoNew;
 import ru.practicum.category.mapper.CategoryMapper;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
-import ru.practicum.error.exception.ForbiddenOperationException;
+import ru.practicum.error.exception.ConflictException;
 import ru.practicum.error.exception.ResourceNotFoundException;
+import ru.practicum.events.model.Event;
+import ru.practicum.events.repository.EventRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +29,9 @@ public class CategoryServiceManager implements CategoryService {
     @Override
     @Transactional
     public CategoryDto createCategoryAdmin(CategoryDtoNew categoryDtoNew) {
+        if (categoryRepository.existsByName(categoryDtoNew.getName())) {
+            throw new ConflictException("Категория с именем '" + categoryDtoNew.getName() + "' уже существует.");
+        }
         log.info("Создание новой категории админом {}.", categoryDtoNew);
         return categoryMapper.toCategoryDto(categoryRepository.save(categoryMapper.toCategory(categoryDtoNew)));
     }
@@ -34,10 +39,14 @@ public class CategoryServiceManager implements CategoryService {
     @Override
     @Transactional
     public CategoryDto updateCategoryAdmin(CategoryDtoNew categoryDtoNew, Long catId) {
-        Category category = categoryMapper.toCategory(categoryDtoNew);
         if (!categoryRepository.existsById(catId)) {
             throw new ResourceNotFoundException(Category.class, catId);
         }
+        Optional<Category> existingCategory = categoryRepository.findByName(categoryDtoNew.getName());
+        if (existingCategory.isPresent() && !existingCategory.get().getId().equals(catId)) {
+            throw new ConflictException("Категория с именем '" + categoryDtoNew.getName() + "' уже существует.");
+        }
+        Category category = categoryMapper.toCategory(categoryDtoNew);
         category.setId(catId);
         log.info("Обновление админом категории с id {} на {}.", catId, categoryDtoNew);
         return categoryMapper.toCategoryDto(categoryRepository.save(category));
@@ -47,8 +56,10 @@ public class CategoryServiceManager implements CategoryService {
     @Transactional
     public void deleteCategoryAdmin(Long catId) {
         findCategoryByIdOrThrow(catId);
-        if (!eventRepository.findEventsByCategoryId(catId).isEmpty()) {//поиск в репозитории событий
-            throw new ForbiddenOperationException("Невозможно удалить. В категории содержатся события.");
+        List<Event> events = eventRepository.findByCategoryId(catId);
+        log.info("Найдено событий для категории {}: {}", catId, events.size());
+        if (!events.isEmpty()) {
+            throw new ConflictException("Невозможно удалить. В категории содержатся события.");
         }
         categoryRepository.deleteById(catId);
         log.info("Админ удалил категорию с id {}", catId);

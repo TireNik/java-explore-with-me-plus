@@ -14,13 +14,13 @@ import ru.practicum.category.service.CategoryService;
 import java.util.List;
 
 import static ru.practicum.util.PathConstants.CATEGORY_ID;
-import static ru.practicum.util.PathConstants.PUBLIC_CATEGORIES;
+import static ru.practicum.util.PathConstants.CATEGORIES;
 
 @Validated
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping(PUBLIC_CATEGORIES)
+@RequestMapping(CATEGORIES)
 public class CategoryControllerPublic {
     private final CategoryService categoryService;
 
