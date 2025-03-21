@@ -3,6 +3,7 @@ package ru.practicum.events.service;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
@@ -47,6 +49,7 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final LocationRepository locationRepository;
 
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
     public List<EventShortDto> getPublicEvents(String text, List<Long> categories, Boolean paid,
@@ -239,7 +242,7 @@ public class EventServiceImpl implements EventService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User with id=" + userId + " not found"));
 
-        LocalDateTime eventDate = LocalDateTime.parse(newEventDto.getEventDate(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        LocalDateTime eventDate = LocalDateTime.parse(newEventDto.getEventDate(), DATE_TIME_FORMATTER);
         LocalDateTime now = LocalDateTime.now();
         if (eventDate.isBefore(now.plusHours(2))) {
             throw new ConflictException("eventDate Error: должно содержать дату, которая еще не наступила: " + eventDate);
@@ -251,6 +254,8 @@ public class EventServiceImpl implements EventService {
         Location location = new Location();
         location.setLat(newEventDto.getLocation().getLat());
         location.setLon(newEventDto.getLocation().getLon());
+        log.info("location: {}" + location);
+
         location = locationRepository.save(location);
 
         Event event = new Event();
@@ -267,6 +272,7 @@ public class EventServiceImpl implements EventService {
         event.setCreatedOn(now);
         event.setInitiator(user);
 
+        log.info("event: {}", event);
         Event savedEvent = eventRepository.save(event);
         return eventMapper.toEventFullDto(savedEvent);
     }
