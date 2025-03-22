@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import ru.practicum.category.model.Event;
+import ru.practicum.events.model.Event;
+
+import java.util.Set;
 
 @Getter
 @Setter
