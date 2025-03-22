@@ -15,7 +15,7 @@ import ru.practicum.compilation.dto.CompilationDtoResponse;
 import ru.practicum.compilation.mapper.CompilationMapper;
 import ru.practicum.compilation.model.Compilation;
 import ru.practicum.compilation.repository.CompilationRepository;
-import ru.practicum.error.exeption.ResourceNotFoundException;
+import ru.practicum.error.exception.ResourceNotFoundException;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -69,7 +69,7 @@ public class CompilationServiceManager implements CompilationService {
 
     @Override
     @Transactional
-    public void deleteCompilationAdmin(Long compId) {//+
+    public void deleteCompilationAdmin(Long compId) {
         findCompilationById(compId);
         log.info("Удаление подборки с id {}.", compId);
         compilationRepository.deleteById(compId);
