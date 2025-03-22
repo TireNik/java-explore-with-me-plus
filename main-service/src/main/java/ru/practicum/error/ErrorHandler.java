@@ -3,6 +3,8 @@ package ru.practicum.error;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,6 +14,7 @@ import ru.practicum.error.exception.ConflictException;
 import ru.practicum.error.exception.ForbiddenOperationException;
 import ru.practicum.error.exception.NotFoundException;
 import ru.practicum.error.exception.ResourceNotFoundException;
+import ru.practicum.error.exception.ValidationException;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -35,7 +38,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiError handleValidationException(MethodArgumentNotValidException e) {
+    public ApiError handleArgumentValidationException(MethodArgumentNotValidException e) {
         List<String> errors = e.getBindingResult()
                 .getFieldErrors()
                 .stream()
@@ -43,6 +46,18 @@ public class ErrorHandler {
                 .toList();
         log.warn("400 {}", e.getMessage(), e);
         return new ApiError("BAD_REQUEST", "Некорректный запрос", "Validation failed", errors);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleValidationException(ValidationException e) {
+        log.warn("400 {}", e.getMessage(), e);
+        return new ApiError(
+                "BAD_REQUEST",
+                "Некорректный запрос",
+                e.getMessage(),
+                Collections.singletonList(e.getMessage())
+        );
     }
 
     @ExceptionHandler
@@ -89,5 +104,10 @@ public class ErrorHandler {
     public ApiError handleException(Exception e) {
         log.error("500 {}", e.getMessage(), e);
         return new ApiError("INTERNAL_SERVER_ERROR", "Ошибка сервера", e.getMessage(), Collections.singletonList(e.getMessage()));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<String> handleMessageNotReadable(HttpMessageNotReadableException ex) {
+        return new ResponseEntity<>("Ошибка десериализации тела запроса: " + ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }

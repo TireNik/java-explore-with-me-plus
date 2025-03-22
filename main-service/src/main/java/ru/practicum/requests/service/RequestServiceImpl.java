@@ -132,9 +132,15 @@ public class RequestServiceImpl implements RequestService {
             throw new ValidationException("Модерация запроса на участие в этом событии не требуется");
         }
 
-        List<Request> requests = requestRepository.findAllByIdInAndStatus(updateDto.getRequestIds(), RequestStatus.PENDING);
+        List<Request> requests = requestRepository.findAllByIdIn(updateDto.getRequestIds());
         if (requests.size() != updateDto.getRequestIds().size()) {
-            throw new ValidationException("Часть заявок не ожидает подтверждения или не найдена");
+            throw new NotFoundException("Часть заявок не найдена");
+        }
+
+        for (Request request : requests) {
+            if (request.getStatus() != RequestStatus.PENDING) {
+                throw new ConflictException("Нельзя изменить статус заявки, которая не находится в состоянии ожидания");
+            }
         }
 
         List<ParticipationRequestDto> confirmedRequests = new ArrayList<>();
