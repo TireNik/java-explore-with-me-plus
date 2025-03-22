@@ -9,6 +9,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.compilation.dto.CompilationDtoRequest;
 import ru.practicum.compilation.dto.CompilationDtoResponse;
+import ru.practicum.compilation.dto.CompilationDtoUpdate;
 import ru.practicum.compilation.service.CompilationService;
 
 @Validated
@@ -29,11 +30,11 @@ public class CompilationControllerAdmin {
 
     @PatchMapping("/{compId}")
     public ResponseEntity<CompilationDtoResponse> update(
-            @RequestBody @Valid CompilationDtoRequest compilationRequestDto,
+            @RequestBody @Valid CompilationDtoUpdate compilationUpdateDto,
             @PathVariable Long compId) {
         log.info("Эндпоинт /admin/compilations/{}. PATCH запрос на обновление админом подборки на {}.",
-                compId, compilationRequestDto);
-        return new ResponseEntity<>(compilationService.updateCompilationAdmin(compilationRequestDto, compId), HttpStatus.OK);
+                compId, compilationUpdateDto);
+        return new ResponseEntity<>(compilationService.updateCompilationAdmin(compilationUpdateDto, compId), HttpStatus.OK);
     }
 
     @DeleteMapping("/{compId}")
