@@ -14,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CompilationDtoRequest {
+    @Builder.Default
     private List<Long> events = new ArrayList<>();
     private Boolean pinned;
 
