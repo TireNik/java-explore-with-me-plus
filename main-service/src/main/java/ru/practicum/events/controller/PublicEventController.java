@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.events.dto.EventFullDto;
 import ru.practicum.events.dto.EventShortDto;
@@ -52,8 +53,9 @@ public class PublicEventController {
     }
 
     @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public EventFullDto getEventById(@PathVariable Long id, HttpServletRequest request) {
-        return eventService.getPublishedEventById(id, request);
+    public ResponseEntity<EventFullDto> getEvent(@PathVariable Long id, HttpServletRequest request) {
+        EventFullDto eventFullDto = eventService.getEventById(id);
+
+        return ResponseEntity.ok(eventFullDto);
     }
 }

@@ -58,4 +58,5 @@ public class PrivateEventController {
         EventFullDto updatedEvent = eventService.updateEvent(userId, eventId, updateRequest);
         return ResponseEntity.ok(updatedEvent);
     }
+
 }
