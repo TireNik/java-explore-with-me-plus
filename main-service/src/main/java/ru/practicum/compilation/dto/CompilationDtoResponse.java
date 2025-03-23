@@ -3,6 +3,8 @@ package ru.practicum.compilation.dto;
 import lombok.*;
 import ru.practicum.events.dto.EventShortDto;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Builder

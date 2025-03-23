@@ -1,8 +1,12 @@
 package ru.practicum.compilation.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,12 +17,11 @@ import java.util.List;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class CompilationDtoRequest {
+public class CompilationDtoUpdate {
     @Builder.Default
     private List<Long> events = new ArrayList<>();
     private Boolean pinned;
 
-    @NotBlank(message = "Заголовок должен быть заполнен")
     @Size(min = 1, max = 50, message = "Длина заголовка от 1 до 50 символов")
     private String title;
 }

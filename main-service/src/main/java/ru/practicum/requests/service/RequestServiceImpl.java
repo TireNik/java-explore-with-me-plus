@@ -121,52 +121,61 @@ public class RequestServiceImpl implements RequestService {
         Event event = checkEventExists(eventId);
 
         if (!event.getInitiator().getId().equals(userId)) {
-            throw new ValidationException("Обновлять запросы может только инициатор события");
+            throw new ConflictException("Обновлять запросы может только инициатор события");
         }
 
-        List<Request> requests = requestRepository.findByIdIn(updateDto.getRequestIds());
-        if (requests.isEmpty()) {
-            throw new NotFoundException("Запросы с указанными ID не найдены");
+        if (event.getState() != EventState.PUBLISHED) {
+            throw new ConflictException("Событие ещё не опубликовано");
         }
 
-        RequestStatus newStatus = RequestStatus.valueOf(updateDto.getStatus());
-        if (newStatus != RequestStatus.CONFIRMED && newStatus != RequestStatus.REJECTED) {
-            throw new ValidationException("Статус должен быть CONFIRMED или REJECTED");
+        if (!event.isRequestModeration() || event.getParticipantLimit() == 0) {
+            throw new ValidationException("Модерация запроса на участие в этом событии не требуется");
         }
 
-        List<ParticipationRequestDto> confirmed = new ArrayList<>();
-        List<ParticipationRequestDto> rejected = new ArrayList<>();
-        int availableSlots = event.getParticipantLimit() - event.getConfirmedRequests();
+        List<Request> requests = requestRepository.findAllByIdIn(updateDto.getRequestIds());
+        if (requests.size() != updateDto.getRequestIds().size()) {
+            throw new NotFoundException("Часть заявок не найдена");
+        }
 
         for (Request request : requests) {
             if (request.getStatus() != RequestStatus.PENDING) {
-                throw new ConflictException("Можно обновлять только запросы в статусе PENDING");
+                throw new ConflictException("Нельзя изменить статус заявки, которая не находится в состоянии ожидания");
             }
-            if (!request.getEvent().getId().equals(eventId)) {
-                throw new ValidationException("Запрос с ID=" + request.getId() +
-                        " не относится к событию с ID=" + eventId);
-            }
-            if (newStatus == RequestStatus.CONFIRMED && availableSlots > 0) {
-                request.setStatus(RequestStatus.CONFIRMED);
-                confirmed.add(requestMapper.toDto(request));
-                event.setConfirmedRequests(event.getConfirmedRequests() + 1);
-                availableSlots--;
-            } else if (newStatus == RequestStatus.REJECTED) {
-                request.setStatus(RequestStatus.REJECTED);
-                rejected.add(requestMapper.toDto(request));
+        }
+
+        List<ParticipationRequestDto> confirmedRequests = new ArrayList<>();
+        List<ParticipationRequestDto> rejectedRequests = new ArrayList<>();
+
+        int currentConfirmed = event.getConfirmedRequests();
+        int participantLimit = event.getParticipantLimit();
+
+        if ("CONFIRMED".equals(updateDto.getStatus()) && currentConfirmed >= participantLimit) {
+            throw new ConflictException("Лимит участников исчерпан");
+        }
+
+        for (Request req : requests) {
+            if ("CONFIRMED".equals(updateDto.getStatus())) {
+                if (currentConfirmed < participantLimit) {
+                    req.setStatus(RequestStatus.CONFIRMED);
+                    currentConfirmed++;
+                    confirmedRequests.add(requestMapper.toDto(req));
+                } else {
+                    req.setStatus(RequestStatus.REJECTED);
+                    rejectedRequests.add(requestMapper.toDto(req));
+                }
+            } else if ("REJECTED".equals(updateDto.getStatus())) {
+                req.setStatus(RequestStatus.REJECTED);
+                rejectedRequests.add(requestMapper.toDto(req));
+            } else {
+                throw new ValidationException("Неизвестный статус: " + updateDto.getStatus());
             }
         }
 
         requestRepository.saveAll(requests);
+        event.setConfirmedRequests(currentConfirmed);
+        eventRepository.save(event);
 
-        if (!confirmed.isEmpty()) {
-            eventRepository.save(event);
-        }
-
-        RequestUpdateResultDto result = new RequestUpdateResultDto();
-        result.setConfirmedRequests(confirmed);
-        result.setRejectedRequests(rejected);
-        return result;
+        return new RequestUpdateResultDto(confirmedRequests, rejectedRequests);
     }
 
     private User checkUserExists(Long userId) {

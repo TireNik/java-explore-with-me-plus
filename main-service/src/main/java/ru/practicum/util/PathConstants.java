@@ -18,14 +18,14 @@ public class PathConstants {
 
     public static final String ADMIN_CATEGORIES = "/admin/categories";
     public static final String ADMIN_COMPILATIONS = "/admin/compilations";
-    public static final String ADMIN_COMPILATION_BY_ID = "/admin/compilations" + COMPILATION_ID;
+    public static final String ADMIN_COMPILATION_BY_ID = ADMIN_COMPILATIONS + COMPILATION_ID;
     public static final String ADMIN_EVENTS = "/admin/events";
     public static final String ADMIN_USERS = "/admin/users";
 
     public static final String EVENT_PUBLISH = "/{eventId}/publish";
     public static final String COMPILATION_BY_ID = COMPILATIONS + COMPILATION_ID;
     public static final String PRIVATE_EVENTS = "/{userId}/events";
-    public static final String PRIVATE_EVENT_BY_ID = "/{userId}/events" + EVENT_ID;
+    public static final String PRIVATE_EVENT_BY_ID = PRIVATE_EVENTS + EVENT_ID;
     public static final String PRIVATE_REQUESTS = "/{userId}/requests";
     public static final String EVENT_REQUESTS = "/{eventId}/requests";
     public static final String PRIVATE_EVENT_REQUESTS = PRIVATE_EVENTS + EVENT_REQUESTS;
