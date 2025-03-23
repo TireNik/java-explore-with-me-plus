@@ -57,6 +57,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventFullDto getEventById(Long id) {
         Event event = eventRepository.findById(id)
+                .filter(e -> e.getState() == EventState.PUBLISHED)
                 .orElseThrow(() -> new NotFoundException("Событие с id=" + id + " не найдено"));
 
         List<ViewStats> stats = statClient.getStat(
