@@ -12,11 +12,14 @@ import ru.practicum.compilation.dto.CompilationDtoResponse;
 import ru.practicum.compilation.dto.CompilationDtoUpdate;
 import ru.practicum.compilation.service.CompilationService;
 
+import static ru.practicum.util.PathConstants.ADMIN_COMPILATIONS;
+import static ru.practicum.util.PathConstants.COMPILATION_ID;
+
 @Validated
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/admin/compilations")
+@RequestMapping(ADMIN_COMPILATIONS)
 public class CompilationControllerAdmin {
     private final CompilationService compilationService;
 
@@ -28,7 +31,7 @@ public class CompilationControllerAdmin {
         return new ResponseEntity<>(compilationService.createCompilationAdmin(compilationRequestDto), HttpStatus.CREATED);
     }
 
-    @PatchMapping("/{compId}")
+    @PatchMapping(COMPILATION_ID)
     public ResponseEntity<CompilationDtoResponse> update(
             @RequestBody @Valid CompilationDtoUpdate compilationUpdateDto,
             @PathVariable Long compId) {
@@ -37,7 +40,7 @@ public class CompilationControllerAdmin {
         return new ResponseEntity<>(compilationService.updateCompilationAdmin(compilationUpdateDto, compId), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{compId}")
+    @DeleteMapping(COMPILATION_ID)
     public ResponseEntity<?> delete(@PathVariable Long compId) {
         compilationService.deleteCompilationAdmin(compId);
         log.info("Эндпоинт /admin/compilations/{}. DELETE запрос  на удаление админом подборки с id {}.", compId,

@@ -12,14 +12,17 @@ import ru.practicum.compilation.service.CompilationService;
 
 import java.util.List;
 
-@RequestMapping("/compilations")
+import static ru.practicum.util.PathConstants.COMPILATIONS;
+import static ru.practicum.util.PathConstants.COMPILATION_ID;
+
+@RequestMapping(COMPILATIONS)
 @RestController
 @Slf4j
 @RequiredArgsConstructor
 public class CompilationControllerPublic {
     private final CompilationService compilationService;
 
-    @GetMapping("/{compId}")
+    @GetMapping(COMPILATION_ID)
     public ResponseEntity<CompilationDtoResponse> getById(@PathVariable Long compId) {
         log.info("Эндпоинт /compilations/{}. GET запрос на получение(public) подборки с id {}.", compId, compId);
         return new ResponseEntity<CompilationDtoResponse>(compilationService.getCompilationByIdPublic(compId),
