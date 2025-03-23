@@ -346,23 +346,20 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventFullDto updateEvent(Long userId, Long eventId, UpdateEventUserRequestDto updateRequest) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
+        Event event = checkEventExists(eventId);
 
         if (!event.getInitiator().getId().equals(userId)) {
-            throw new NotFoundException("Пользователь с id=" + userId + " не является владельцем события с id=" + eventId);
+            throw new ConflictException("Пользователь с id=" + userId + " не является владельцем события с id=" + eventId);
         }
 
         if (event.getState() != EventState.PENDING && event.getState() != EventState.CANCELED) {
             throw new ConflictException("Only pending or canceled events can be changed");
         }
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
         if (updateRequest.getEventDate() != null) {
-            LocalDateTime eventDateTime = LocalDateTime.parse(updateRequest.getEventDate(), formatter);
+            LocalDateTime eventDateTime = LocalDateTime.parse(updateRequest.getEventDate(), FORMATTER);
             if (eventDateTime.isBefore(LocalDateTime.now().plusHours(2))) {
-                throw new ConflictException("Дата и время события не может быть раньше, чем через два часа от текущего момента");
+                throw new ValidationException("Дата и время события не может быть раньше, чем через два часа от текущего момента");
             }
             event.setEventDate(eventDateTime);
         }
