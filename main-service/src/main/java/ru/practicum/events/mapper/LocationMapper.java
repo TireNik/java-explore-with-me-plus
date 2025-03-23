@@ -2,7 +2,6 @@ package ru.practicum.events.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
-import org.mapstruct.ReportingPolicy;
 import ru.practicum.events.dto.LocationDto;
 import ru.practicum.events.model.Location;
 
