@@ -307,10 +307,9 @@ public class EventServiceImpl implements EventService {
         Category category = categoryRepository.findById(newEventDto.getCategory())
                 .orElseThrow(() -> new NotFoundException("Category with id=" + newEventDto.getCategory() + " was not found"));
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime eventDateTime = LocalDateTime.parse(newEventDto.getEventDate(), formatter);
+        LocalDateTime eventDateTime = LocalDateTime.parse(newEventDto.getEventDate(), FORMATTER);
         if (eventDateTime.isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new ConflictException("Дата и время события не может быть раньше, чем через два часа от текущего момента");
+            throw new ValidationException("Дата и время события не может быть раньше, чем через два часа от текущего момента");
         }
 
         Location location = locationRepository.save(locationMapper.toEntity(newEventDto.getLocation()));
