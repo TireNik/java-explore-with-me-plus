@@ -199,49 +199,73 @@ public class EventServiceImpl implements EventService {
     public EventFullDto updateEventAdmin(Long eventId, UpdateEventAdminRequestDto dto) {
         Event event = checkEventExists(eventId);
 
-        // Форматтер для даты "yyyy-MM-dd HH:mm:ss"
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-        if (dto.getEventDate() != null) {
-            LocalDateTime eventDateTime = LocalDateTime.parse(dto.getEventDate(), formatter);
-            if (event.getState() == EventState.PUBLISHED && eventDateTime.isBefore(event.getPublishedOn().plusHours(1))) {
-                throw new ConflictException("Дата начала события должна быть не ранее чем за час от даты публикации");
-            }
-            event.setEventDate(eventDateTime);
+        if (event.getState() != EventState.PENDING && event.getState() != EventState.PUBLISHED) {
+            throw new ConflictException("Only PENDING or PUBLISHED events can be updated by admin");
         }
 
-        if (dto.getAnnotation() != null) event.setAnnotation(dto.getAnnotation());
-        if (dto.getTitle() != null) event.setTitle(dto.getTitle());
-        if (dto.getDescription() != null) event.setDescription(dto.getDescription());
+        if (dto.getAnnotation() != null) {
+            event.setAnnotation(dto.getAnnotation());
+        }
         if (dto.getCategory() != null) {
-            Category category = categoryRepository.findById(dto.getCategory())
-                    .orElseThrow(() -> new NotFoundException("Категория с id=" + dto.getCategory() + " не найдена"));
+            Category category = checkCategoryExists(dto.getCategory());
             event.setCategory(category);
+        }
+        if (dto.getDescription() != null) {
+            event.setDescription(dto.getDescription());
+        }
+        if (dto.getEventDate() != null) {
+            LocalDateTime eventDateTime = LocalDateTime.parse(dto.getEventDate(), FORMATTER);
+            LocalDateTime now = LocalDateTime.now();
+
+            if (eventDateTime.isBefore(now)) {
+                throw new ValidationException("Event date cannot be in the past");
+            }
+
+            if (event.getState() == EventState.PUBLISHED && event.getPublishedOn() != null) {
+                LocalDateTime minAllowedDate = event.getPublishedOn().plusHours(1);
+                if (eventDateTime.isBefore(minAllowedDate)) {
+                    throw new ConflictException("Event date must be at least 1 hour after publication");
+                }
+            }
+
+            event.setEventDate(eventDateTime);
         }
         if (dto.getLocation() != null) {
             Location location = locationRepository.save(locationMapper.toEntity(dto.getLocation()));
             event.setLocation(location);
         }
-        if (dto.getPaid() != null) event.setPaid(dto.getPaid());
-        if (dto.getParticipantLimit() != null) event.setParticipantLimit(dto.getParticipantLimit());
-        if (dto.getRequestModeration() != null) event.setRequestModeration(dto.getRequestModeration());
+        if (dto.getPaid() != null) {
+            event.setPaid(dto.getPaid());
+        }
+        if (dto.getParticipantLimit() != null) {
+            event.setParticipantLimit(dto.getParticipantLimit());
+        }
+        if (dto.getRequestModeration() != null) {
+            event.setRequestModeration(dto.getRequestModeration());
+        }
+        if (dto.getTitle() != null) {
+            event.setTitle(dto.getTitle());
+        }
 
         if (dto.getStateAction() != null) {
             switch (dto.getStateAction()) {
                 case PUBLISH_EVENT:
                     if (!event.getState().equals(EventState.PENDING)) {
-                        throw new ConflictException("Cannot publish the event because it's not in the right state: " + event.getState());
+                        throw new ConflictException("Event must be in PENDING state to be published");
                     }
                     event.setState(EventState.PUBLISHED);
                     event.setPublishedOn(LocalDateTime.now());
                     break;
 
                 case REJECT_EVENT:
-                    if (event.getState().equals(EventState.PUBLISHED)) {
-                        throw new ConflictException("Невозможно отклонить событие, потому что оно уже опубликовано");
+                    if (!event.getState().equals(EventState.PENDING)) {
+                        throw new ConflictException("Event must be in PENDING state to be rejected");
                     }
                     event.setState(EventState.CANCELED);
                     break;
+
+                default:
+                    throw new ValidationException("Unknown state action: " + dto.getStateAction());
             }
         }
 

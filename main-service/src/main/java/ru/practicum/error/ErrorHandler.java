@@ -12,6 +12,7 @@ import ru.practicum.error.exception.ConflictException;
 import ru.practicum.error.exception.ForbiddenOperationException;
 import ru.practicum.error.exception.NotFoundException;
 import ru.practicum.error.exception.ResourceNotFoundException;
+import ru.practicum.error.exception.ValidationException;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -35,7 +36,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiError handleValidationException(MethodArgumentNotValidException e) {
+    public ApiError handleArgumentValidationException(MethodArgumentNotValidException e) {
         List<String> errors = e.getBindingResult()
                 .getFieldErrors()
                 .stream()
@@ -43,6 +44,18 @@ public class ErrorHandler {
                 .toList();
         log.warn("400 {}", e.getMessage(), e);
         return new ApiError("BAD_REQUEST", "Некорректный запрос", "Validation failed", errors);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleValidationException(ValidationException e) {
+        log.warn("400 {}", e.getMessage(), e);
+        return new ApiError(
+                "BAD_REQUEST",
+                "Некорректный запрос",
+                e.getMessage(),
+                Collections.singletonList(e.getMessage())
+        );
     }
 
     @ExceptionHandler
