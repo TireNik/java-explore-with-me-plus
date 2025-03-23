@@ -383,4 +383,8 @@ public class EventServiceImpl implements EventService {
         return eventMapper.toEventFullDto(updatedEvent);
     }
 
+    private Event checkEventExists(Long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Событие с ID=" + eventId + " не найдено"));
+    }
 }
