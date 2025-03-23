@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.StatDto;
 import ru.practicum.ViewStats;
+import ru.practicum.error.exceptions.ValidationException;
 import ru.practicum.mapper.StatMapper;
 import ru.practicum.model.Stat;
 import ru.practicum.repository.StatsRepository;
@@ -31,6 +32,10 @@ public class StatsServiceImpl implements StatsService {
 
     @Override
     public List<ViewStats> getAllStats(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
+        if (start.isAfter(end)) {
+            throw new ValidationException("Start date must be before end date");
+        }
+
         List<Object[]> stats;
         if (uris != null && !uris.isEmpty()) {
             if (unique) {
