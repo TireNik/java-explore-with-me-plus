@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.compilation.dto.CompilationDtoUpdate;
 import ru.practicum.error.exception.ResourceNotFoundException;
 import ru.practicum.events.model.Event;
 import ru.practicum.events.dto.EventShortDto;
@@ -47,7 +48,7 @@ public class CompilationServiceManager implements CompilationService {
 
     @Override
     @Transactional
-    public CompilationDtoResponse updateCompilationAdmin(CompilationDtoRequest compilationDtoRequest, Long compId) {
+    public CompilationDtoResponse updateCompilationAdmin(CompilationDtoUpdate compilationDtoRequest, Long compId) {
         Compilation compilation = getCompilation(compId);
 
         if (compilationDtoRequest.getPinned() != null) {
@@ -68,7 +69,7 @@ public class CompilationServiceManager implements CompilationService {
 
     @Override
     @Transactional
-    public void deleteCompilationAdmin(Long compId) {//+
+    public void deleteCompilationAdmin(Long compId) {
         findCompilationById(compId);
         log.info("Удаление подборки с id {}.", compId);
         compilationRepository.deleteById(compId);

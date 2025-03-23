@@ -19,5 +19,6 @@ public interface CompilationMapper {
     CompilationDtoResponse toCompilationDto(Compilation compilation, List<EventShortDto> eventDTOs);
 
     @Mapping(target = "events", source = "events")
+    @Mapping(target = "id", ignore = true)
     Compilation toCompilation(CompilationDtoRequest compilationDtoRequest, Set<Event> events);
 }
