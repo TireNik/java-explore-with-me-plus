@@ -51,46 +51,50 @@ public class EventServiceImpl implements EventService {
     private final LocationMapper locationMapper;
     private final UserRepository userRepository;
     private final LocationRepository locationRepository;
+    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);
 
-
-
+    @Transactional
     @Override
-    public EventFullDto getEventById(Long id) {
+    public EventFullDto getEventById(Long id, HttpServletRequest request) {
         Event event = eventRepository.findById(id)
                 .filter(e -> e.getState() == EventState.PUBLISHED)
                 .orElseThrow(() -> new NotFoundException("Событие с id=" + id + " не найдено"));
+
+        StatDto statDto = new StatDto(
+                null,
+                "main-service",
+                request.getRequestURI(),
+                request.getRemoteAddr(),
+                LocalDateTime.now().format(FORMATTER)
+        );
+        log.info("Статистика: {}", statDto);
+        statClient.hit(statDto);
+
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.warn("Поток был прерван во время ожидания", e);
+        }
 
         List<ViewStats> stats = statClient.getStat(
                 event.getPublishedOn(),
                 LocalDateTime.now(),
                 List.of("/events/" + id),
-                false
+                true
         );
-        long views = stats.isEmpty() ? 0 : stats.get(0).getHits();
 
+        long views = stats.isEmpty() ? 0 : stats.getFirst().getHits();
         long confirmedRequests = requestRepository.countByEventIdAndStatus(id, RequestStatus.CONFIRMED);
 
         EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
         eventFullDto.setViews(views);
         eventFullDto.setConfirmedRequests((int) confirmedRequests);
-
-        StatDto statDto = new StatDto(
-                null,
-                "main-service",
-                "/events/" + id,
-                getClientIp(),
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        );
-        log.info("Статистика: {}", statDto);
-        statClient.hit(statDto);
+        eventRepository.save(event);
 
         return eventFullDto;
     }
-
-    private String getClientIp() {
-        return "127.0.0.1"; // можно получить IP из запроса
-    }
-
 
     @Override
     public List<EventShortDto> getPublicEvents(String text, List<Long> categories, Boolean paid,
