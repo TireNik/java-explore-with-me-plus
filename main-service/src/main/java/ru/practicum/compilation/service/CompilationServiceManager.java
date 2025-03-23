@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.compilation.dto.CompilationDtoUpdate;
+import ru.practicum.error.exception.ResourceNotFoundException;
 import ru.practicum.events.model.Event;
 import ru.practicum.events.dto.EventShortDto;
 import ru.practicum.events.mapper.EventMapper;
