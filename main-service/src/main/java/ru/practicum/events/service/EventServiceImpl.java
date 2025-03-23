@@ -307,7 +307,7 @@ public class EventServiceImpl implements EventService {
 
         LocalDateTime eventDateTime = LocalDateTime.parse(newEventDto.getEventDate(), FORMATTER);
         if (eventDateTime.isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new ValidationException("" +
+            throw new ValidationException(
                     "Дата и время события не может быть раньше, чем через два часа от текущего момента");
         }
 
@@ -380,21 +380,18 @@ public class EventServiceImpl implements EventService {
         if (updateRequest.getRequestModeration() != null) event.setRequestModeration(updateRequest.getRequestModeration());
 
         if (updateRequest.getStateAction() != null) {
-            switch (updateRequest.getStateAction()) {
-                case SEND_TO_REVIEW:
-                    if (event.getState() == EventState.CANCELED) {
-                        event.setState(EventState.PENDING);
-                    } else {
-                        throw new ConflictException("Событие уже находится в состоянии ожидания модерации");
-                    }
-                    break;
-                case CANCEL_REVIEW:
-                    if (event.getState() == EventState.PENDING) {
-                        event.setState(EventState.CANCELED);
-                    } else {
-                        throw new ConflictException("Событие уже находится в состоянии отмены");
-                    }
-                    break;
+            if (updateRequest.getStateAction() == UpdateUserStateAction.SEND_TO_REVIEW) {
+                if (event.getState() == EventState.CANCELED) {
+                    event.setState(EventState.PENDING);
+                } else {
+                    throw new ConflictException("Событие уже находится в состоянии ожидания модерации");
+                }
+            } else if (updateRequest.getStateAction() == UpdateUserStateAction.CANCEL_REVIEW) {
+                if (event.getState() == EventState.PENDING) {
+                    event.setState(EventState.CANCELED);
+                } else {
+                    throw new ConflictException("Событие уже находится в состоянии отмены");
+                }
             }
         }
 
