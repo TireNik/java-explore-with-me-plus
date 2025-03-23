@@ -197,8 +197,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventFullDto updateEventAdmin(Long eventId, UpdateEventAdminRequestDto dto) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
+        Event event = checkEventExists(eventId);
 
         // Форматтер для даты "yyyy-MM-dd HH:mm:ss"
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -386,5 +385,10 @@ public class EventServiceImpl implements EventService {
     private Event checkEventExists(Long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Событие с ID=" + eventId + " не найдено"));
+    }
+
+    private Category checkCategoryExists(Long catId) {
+        return categoryRepository.findById(catId)
+                .orElseThrow(() -> new NotFoundException("Категория с ID=" + catId + " не найдена"));
     }
 }
