@@ -52,7 +52,6 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final LocationRepository locationRepository;
 
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 
     @Override
@@ -196,11 +195,38 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
 
+        // Форматтер для даты "yyyy-MM-dd HH:mm:ss"
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        if (dto.getEventDate() != null) {
+            LocalDateTime eventDateTime = LocalDateTime.parse(dto.getEventDate(), formatter);
+            if (event.getState() == EventState.PUBLISHED && eventDateTime.isBefore(event.getPublishedOn().plusHours(1))) {
+                throw new ConflictException("Дата начала события должна быть не ранее чем за час от даты публикации");
+            }
+            event.setEventDate(eventDateTime);
+        }
+
+        if (dto.getAnnotation() != null) event.setAnnotation(dto.getAnnotation());
+        if (dto.getTitle() != null) event.setTitle(dto.getTitle());
+        if (dto.getDescription() != null) event.setDescription(dto.getDescription());
+        if (dto.getCategory() != null) {
+            Category category = categoryRepository.findById(dto.getCategory())
+                    .orElseThrow(() -> new NotFoundException("Категория с id=" + dto.getCategory() + " не найдена"));
+            event.setCategory(category);
+        }
+        if (dto.getLocation() != null) {
+            Location location = locationRepository.save(locationMapper.toEntity(dto.getLocation()));
+            event.setLocation(location);
+        }
+        if (dto.getPaid() != null) event.setPaid(dto.getPaid());
+        if (dto.getParticipantLimit() != null) event.setParticipantLimit(dto.getParticipantLimit());
+        if (dto.getRequestModeration() != null) event.setRequestModeration(dto.getRequestModeration());
+
         if (dto.getStateAction() != null) {
             switch (dto.getStateAction()) {
                 case PUBLISH_EVENT:
                     if (!event.getState().equals(EventState.PENDING)) {
-                        throw new ConflictException("Не могу опубликовать событие, потому что оно не находится в правильном состоянии: " + event.getState());
+                        throw new ConflictException("Cannot publish the event because it's not in the right state: " + event.getState());
                     }
                     event.setState(EventState.PUBLISHED);
                     event.setPublishedOn(LocalDateTime.now());
@@ -208,15 +234,13 @@ public class EventServiceImpl implements EventService {
 
                 case REJECT_EVENT:
                     if (event.getState().equals(EventState.PUBLISHED)) {
-                        throw new ConflictException("Невозможно отклонить событие, потому что оно уже опубликовано.");
+                        throw new ConflictException("Невозможно отклонить событие, потому что оно уже опубликовано");
                     }
                     event.setState(EventState.CANCELED);
                     break;
-
-                default:
-                    throw new ConflictException("Недопустимое действие для администратора: " + dto.getStateAction());
             }
         }
+
         Event updatedEvent = eventRepository.save(event);
         return eventMapper.toEventFullDto(updatedEvent);
     }
@@ -245,42 +269,39 @@ public class EventServiceImpl implements EventService {
             throw e;
         }
     }
-    @Override
-    public EventFullDto addEvent(Long userId, NewEventDto newEventDto) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User with id=" + userId + " not found"));
 
-        LocalDateTime eventDate = LocalDateTime.parse(newEventDto.getEventDate(), DATE_TIME_FORMATTER);
-        LocalDateTime now = LocalDateTime.now();
-        if (eventDate.isBefore(now.plusHours(2))) {
-            throw new ConflictException("eventDate Error: должно содержать дату, которая еще не наступила: " + eventDate);
-        }
+    @Override
+    @Transactional
+    public EventFullDto addEvent(Long userId, NewEventDto newEventDto) {
+        User initiator = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User with id=" + userId + " was not found"));
 
         Category category = categoryRepository.findById(newEventDto.getCategory())
-                .orElseThrow(() -> new NotFoundException("Category with id=" + newEventDto.getCategory() + " not found"));
+                .orElseThrow(() -> new NotFoundException("Category with id=" + newEventDto.getCategory() + " was not found"));
 
-        Location location = new Location();
-        location.setLat(newEventDto.getLocation().getLat());
-        location.setLon(newEventDto.getLocation().getLon());
-        log.info("location: {}" + location);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime eventDateTime = LocalDateTime.parse(newEventDto.getEventDate(), formatter);
+        if (eventDateTime.isBefore(LocalDateTime.now().plusHours(2))) {
+            throw new ConflictException("Дата и время события не может быть раньше, чем через два часа от текущего момента");
+        }
 
-        location = locationRepository.save(location);
+        Location location = locationRepository.save(locationMapper.toEntity(newEventDto.getLocation()));
 
         Event event = new Event();
-        event.setTitle(newEventDto.getTitle());
         event.setAnnotation(newEventDto.getAnnotation());
+        event.setTitle(newEventDto.getTitle());
         event.setDescription(newEventDto.getDescription());
         event.setCategory(category);
+        event.setEventDate(eventDateTime);
         event.setLocation(location);
-        event.setEventDate(eventDate);
-        event.setPaid(newEventDto.getPaid());
-        event.setParticipantLimit(newEventDto.getParticipantLimit());
-        event.setRequestModeration(newEventDto.getRequestModeration());
+        event.setInitiator(initiator);
+        event.setCreatedOn(LocalDateTime.now());
         event.setState(EventState.PENDING);
-        event.setCreatedOn(now);
-        event.setInitiator(user);
 
-        log.info("event: {}", event);
+        event.setPaid(newEventDto.getPaid() != null ? newEventDto.getPaid() : false);
+        event.setParticipantLimit(newEventDto.getParticipantLimit() != null ? newEventDto.getParticipantLimit() : 0);
+        event.setRequestModeration(newEventDto.getRequestModeration() != null ? newEventDto.getRequestModeration() : true);
+
         Event savedEvent = eventRepository.save(event);
         return eventMapper.toEventFullDto(savedEvent);
     }
@@ -294,7 +315,6 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
     }
 
-
     @Override
     @Transactional
     public EventFullDto updateEvent(Long userId, Long eventId, UpdateEventUserRequestDto updateRequest) {
@@ -302,17 +322,19 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
 
         if (!event.getInitiator().getId().equals(userId)) {
-            throw new ResourceNotFoundException("Пользователь не является владельцем этого события");
+            throw new NotFoundException("Пользователь с id=" + userId + " не является владельцем события с id=" + eventId);
         }
 
         if (event.getState() != EventState.PENDING && event.getState() != EventState.CANCELED) {
-            throw new ConflictException("Только ожидающие или отмененные события могут быть изменены");
+            throw new ConflictException("Only pending or canceled events can be changed");
         }
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
         if (updateRequest.getEventDate() != null) {
-            LocalDateTime eventDateTime = LocalDateTime.parse(updateRequest.getEventDate());
+            LocalDateTime eventDateTime = LocalDateTime.parse(updateRequest.getEventDate(), formatter);
             if (eventDateTime.isBefore(LocalDateTime.now().plusHours(2))) {
-                throw new ConflictException("Дата события должна быть не менее чем через 2 часа от текущего времени");
+                throw new ConflictException("Дата и время события не может быть раньше, чем через два часа от текущего момента");
             }
             event.setEventDate(eventDateTime);
         }
@@ -329,6 +351,7 @@ public class EventServiceImpl implements EventService {
             Location location = locationRepository.save(locationMapper.toEntity(updateRequest.getLocation()));
             event.setLocation(location);
         }
+        if (updateRequest.getPaid() != null) event.setPaid(updateRequest.getPaid());
         if (updateRequest.getParticipantLimit() != null) event.setParticipantLimit(updateRequest.getParticipantLimit());
         if (updateRequest.getRequestModeration() != null) event.setRequestModeration(updateRequest.getRequestModeration());
 
@@ -338,22 +361,21 @@ public class EventServiceImpl implements EventService {
                     if (event.getState() == EventState.CANCELED) {
                         event.setState(EventState.PENDING);
                     } else {
-                        throw new ConflictException("Событие не может быть отправлено на ревью, так как оно не в статусе CANCELED");
+                        throw new ConflictException("Событие уже находится в состоянии ожидания модерации");
                     }
                     break;
                 case CANCEL_REVIEW:
                     if (event.getState() == EventState.PENDING) {
                         event.setState(EventState.CANCELED);
                     } else {
-                        throw new ConflictException("Событие не может быть отменено, так как оно уже в статусе CANCELED");
+                        throw new ConflictException("Событие уже находится в состоянии отмены");
                     }
                     break;
-                default:
-                    throw new ConflictException("Недопустимое действие: " + updateRequest.getStateAction());
             }
         }
 
         Event updatedEvent = eventRepository.save(event);
         return eventMapper.toEventFullDto(updatedEvent);
     }
+
 }
