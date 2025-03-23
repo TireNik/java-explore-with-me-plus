@@ -57,6 +57,6 @@ public class StatsServiceImpl implements StatsService {
                         (String) obj[1],       // uri
                         ((Number) obj[2]).longValue() // hits
                 ))
-                .collect(Collectors.toList());
+                .toList();
     }
 }
