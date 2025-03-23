@@ -101,8 +101,14 @@ public class EventServiceImpl implements EventService {
                                                LocalDateTime rangeStart, LocalDateTime rangeEnd,
                                                Boolean onlyAvailable, String sort, int from, int size,
                                                HttpServletRequest request) {
+
+        if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
+            throw new ValidationException("Range start cannot be after range end");
+        }
+
         Specification<Event> spec = (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
+            predicates.add(criteriaBuilder.equal(root.get("state"), EventState.PUBLISHED));
 
             if (text != null && !text.isBlank()) {
                 String pattern = "%%" + text.toLowerCase() + "%%";
@@ -138,9 +144,10 @@ public class EventServiceImpl implements EventService {
         EventSort eventSort = sort != null ? EventSort.valueOf(sort.toUpperCase()) : null;
         Sort sorting = Sort.unsorted();
         if (eventSort != null) {
-            switch (eventSort) {
-                case EVENT_DATE -> sorting = Sort.by(Sort.Direction.DESC, "eventDate");
-                case VIEWS -> sorting = Sort.by(Sort.Direction.DESC, "views");
+            if (eventSort == EventSort.EVENT_DATE) {
+                sorting = Sort.by(Sort.Direction.DESC, "eventDate");
+            } else if (eventSort == EventSort.VIEWS) {
+                sorting = Sort.by(Sort.Direction.DESC, "views");
             }
         }
 
@@ -149,7 +156,7 @@ public class EventServiceImpl implements EventService {
 
         return events.stream()
                 .map(eventMapper::toEventShortDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
 
