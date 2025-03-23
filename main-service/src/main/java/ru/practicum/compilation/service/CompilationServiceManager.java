@@ -16,6 +16,7 @@ import ru.practicum.compilation.dto.CompilationDtoResponse;
 import ru.practicum.compilation.mapper.CompilationMapper;
 import ru.practicum.compilation.model.Compilation;
 import ru.practicum.compilation.repository.CompilationRepository;
+import ru.practicum.error.exception.ResourceNotFoundException;
 
 import java.util.ArrayList;
 import java.util.HashSet;
