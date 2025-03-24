@@ -322,21 +322,7 @@ public class EventServiceImpl implements EventService {
 
         Location location = locationRepository.save(locationMapper.toEntity(newEventDto.getLocation()));
 
-        Event event = new Event();
-        event.setAnnotation(newEventDto.getAnnotation());
-        event.setTitle(newEventDto.getTitle());
-        event.setDescription(newEventDto.getDescription());
-        event.setCategory(category);
-        event.setEventDate(eventDateTime);
-        event.setLocation(location);
-        event.setInitiator(initiator);
-        event.setCreatedOn(LocalDateTime.now());
-        event.setState(EventState.PENDING);
-
-        event.setPaid(newEventDto.getPaid() != null && newEventDto.getPaid());
-        event.setParticipantLimit(newEventDto.getParticipantLimit() != null ? newEventDto.getParticipantLimit() : 0);
-        event.setRequestModeration(newEventDto.getRequestModeration() != null ? newEventDto.getRequestModeration() : true);
-
+        Event event = eventMapper.toEvent(newEventDto, initiator, category, location);
         Event savedEvent = eventRepository.save(event);
         return eventMapper.toEventFullDto(savedEvent);
     }
@@ -370,23 +356,14 @@ public class EventServiceImpl implements EventService {
                 throw new ValidationException(
                         "Дата и время события не может быть раньше, чем через два часа от текущего момента");
             }
-            event.setEventDate(eventDateTime);
         }
 
-        if (updateRequest.getAnnotation() != null) event.setAnnotation(updateRequest.getAnnotation());
-        if (updateRequest.getTitle() != null) event.setTitle(updateRequest.getTitle());
-        if (updateRequest.getDescription() != null) event.setDescription(updateRequest.getDescription());
-        if (updateRequest.getCategory() != null) {
-            Category category = checkCategoryExists(updateRequest.getCategory());
-            event.setCategory(category);
-        }
-        if (updateRequest.getLocation() != null) {
-            Location location = locationRepository.save(locationMapper.toEntity(updateRequest.getLocation()));
-            event.setLocation(location);
-        }
-        if (updateRequest.getPaid() != null) event.setPaid(updateRequest.getPaid());
-        if (updateRequest.getParticipantLimit() != null) event.setParticipantLimit(updateRequest.getParticipantLimit());
-        if (updateRequest.getRequestModeration() != null) event.setRequestModeration(updateRequest.getRequestModeration());
+        Category category = updateRequest.getCategory() != null ? checkCategoryExists(updateRequest.getCategory()) : null;
+        Location location = updateRequest.getLocation() != null
+                ? locationRepository.save(locationMapper.toEntity(updateRequest.getLocation()))
+                : null;
+
+        eventMapper.updateEventFromDto(updateRequest, category, location, event);
 
         if (updateRequest.getStateAction() != null) {
             if (updateRequest.getStateAction() == UpdateUserStateAction.SEND_TO_REVIEW) {
