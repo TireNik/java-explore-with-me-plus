@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface CompilationRepository extends JpaRepository<Compilation, Long> {
 
-    @EntityGraph(attributePaths = {"event", "event.category", "event.initiator"})
+    @EntityGraph(attributePaths = {"events", "events.category", "events.initiator"})
     List<Compilation> findAllByPinnedIs(Boolean pinned, Pageable pageable);
 
     @EntityGraph(attributePaths = {"events", "events.category", "events.initiator"})
