@@ -2,7 +2,6 @@ package ru.practicum.events.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
-import lombok.Value;
 import ru.practicum.events.model.Event;
 
 /**

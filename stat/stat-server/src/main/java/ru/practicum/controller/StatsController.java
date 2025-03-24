@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.StatDto;
@@ -21,6 +22,7 @@ public class StatsController {
     private final StatsService service;
 
     @PostMapping("/hit")
+    @ResponseStatus(HttpStatus.CREATED)
     public StatDto createHit(@Valid @RequestBody StatDto statDto) {
         log.info("Эндпоинт /hit. POST запрос. Создание ногового StatDto {}.", statDto);
         return service.createHit(statDto);

@@ -24,10 +24,9 @@ import java.util.List;
 import static ru.practicum.util.PathConstants.PRIVATE_EVENT_REQUESTS;
 import static ru.practicum.util.PathConstants.PRIVATE_REQUESTS;
 import static ru.practicum.util.PathConstants.PRIVATE_REQUEST_CANCEL;
-import static ru.practicum.util.PathConstants.USERS;
 
 @RestController
-@RequestMapping(USERS)
+@RequestMapping
 @RequiredArgsConstructor
 @Validated
 public class RequestControllerPrivate {

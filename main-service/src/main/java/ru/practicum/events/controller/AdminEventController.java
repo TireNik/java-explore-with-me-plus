@@ -10,8 +10,11 @@ import ru.practicum.events.service.EventService;
 
 import java.util.List;
 
+import static ru.practicum.util.PathConstants.ADMIN_EVENTS;
+import static ru.practicum.util.PathConstants.EVENT_ID;
+
 @RestController
-@RequestMapping("/admin/events")
+@RequestMapping(ADMIN_EVENTS)
 @RequiredArgsConstructor
 public class AdminEventController {
 
@@ -28,7 +31,7 @@ public class AdminEventController {
         return eventService.getAdminEventById(userIds, states, categories, rangeStart, rangeEnd, from, size);
     }
 
-    @PatchMapping("/{eventId}")
+    @PatchMapping(EVENT_ID)
     public ResponseEntity<EventFullDto> updateEvent(@PathVariable Long eventId, @Valid @RequestBody UpdateEventAdminRequestDto dto) {
         EventFullDto eventFullDto = eventService.updateEventAdmin(eventId, dto);
         return ResponseEntity.ok(eventFullDto);

@@ -16,8 +16,11 @@ import ru.practicum.events.service.EventService;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static ru.practicum.util.PathConstants.EVENTS;
+import static ru.practicum.util.PathConstants.EVENT_ID;
+
 @RestController
-@RequestMapping("/events")
+@RequestMapping(EVENTS)
 @RequiredArgsConstructor
 public class PublicEventController {
 
@@ -52,9 +55,9 @@ public class PublicEventController {
                 text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, request);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<EventFullDto> getEvent(@PathVariable Long id, HttpServletRequest request) {
-        EventFullDto eventFullDto = eventService.getEventById(id);
+    @GetMapping(EVENT_ID)
+    public ResponseEntity<EventFullDto> getEvent(@PathVariable Long eventId, HttpServletRequest request) {
+        EventFullDto eventFullDto = eventService.getEventById(eventId, request);
 
         return ResponseEntity.ok(eventFullDto);
     }

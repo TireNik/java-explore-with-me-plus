@@ -16,15 +16,18 @@ import ru.practicum.events.service.EventService;
 
 import java.util.List;
 
+import static ru.practicum.util.PathConstants.EVENT_ID;
+import static ru.practicum.util.PathConstants.PRIVATE_EVENTS;
+
 @RestController
-@RequestMapping("/users/{userId}/events")
+@RequestMapping(PRIVATE_EVENTS)
 @RequiredArgsConstructor
 @Slf4j
 public class PrivateEventController {
 
     private final EventService eventService;
 
-    @GetMapping(path = "/{eventId}")
+    @GetMapping(path = EVENT_ID)
     public ResponseEntity<EventFullDto> getEvent(@PathVariable("userId") Long userId,
                                                  @PathVariable("eventId") Long eventId,
                                                  HttpServletRequest request) {
@@ -50,7 +53,7 @@ public class PrivateEventController {
         return ResponseEntity.ok(events);
     }
 
-    @PatchMapping("/{eventId}")
+    @PatchMapping(EVENT_ID)
     public ResponseEntity<EventFullDto> updateEvent(
             @PathVariable Long userId,
             @PathVariable Long eventId,
