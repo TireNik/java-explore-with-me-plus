@@ -96,6 +96,15 @@ public class EventServiceImpl implements EventService {
                                                Boolean onlyAvailable, String sort, int from, int size,
                                                HttpServletRequest request) {
 
+        StatDto statDto = new StatDto(
+                null,
+                "main-service",
+                request.getRequestURI(),
+                request.getRemoteAddr(),
+                LocalDateTime.now().format(FORMATTER)
+        );
+        statClient.hit(statDto);
+
         if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
             throw new ValidationException("Начало диапазона не может быть позже его конца");
         }
