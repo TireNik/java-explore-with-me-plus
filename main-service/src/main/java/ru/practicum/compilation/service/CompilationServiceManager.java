@@ -115,7 +115,7 @@ public class CompilationServiceManager implements CompilationService {
     }
 
     private Compilation getCompilation(Long compId) {
-        return compilationRepository.findById(compId)
+        return compilationRepository.findCompilationById(compId)
                 .orElseThrow(() -> new ResourceNotFoundException(Compilation.class, compId));
     }
 
