@@ -1,5 +1,6 @@
 package ru.practicum.events.service;
 
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -95,7 +96,6 @@ public class EventServiceImpl implements EventService {
                                                LocalDateTime rangeStart, LocalDateTime rangeEnd,
                                                Boolean onlyAvailable, String sort, int from, int size,
                                                HttpServletRequest request) {
-
         StatDto statDto = new StatDto(
                 null,
                 "main-service",
@@ -169,7 +169,7 @@ public class EventServiceImpl implements EventService {
         Specification<Event> spec = (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (userIds != null && !userIds.isEmpty()) {
-                predicates.add(root.get("user").get("id").in(userIds));
+                predicates.add(root.get("initiator").get("id").in(userIds));
             }
             if (states != null && !states.isEmpty()) {
                 List<EventState> eventStates = states.stream()
@@ -195,7 +195,6 @@ public class EventServiceImpl implements EventService {
         };
 
         Pageable pageable = PageRequest.of(from.intValue() / size.intValue(), size.intValue());
-
         List<Event> events = eventRepository.findAll(spec, pageable).getContent();
 
         return events.stream()
