@@ -1,8 +1,7 @@
 package ru.practicum.events.model;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Data;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.category.model.Category;
 import ru.practicum.user.model.User;
@@ -10,7 +9,10 @@ import ru.practicum.user.model.User;
 import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @Table(name = "events")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Event {
@@ -59,4 +61,5 @@ public class Event {
 
     @Column(name = "views")
     Long views;
+
 }
