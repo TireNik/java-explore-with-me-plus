@@ -2,6 +2,8 @@ package ru.practicum.comment.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.comment.dto.CommentDtoRequest;
@@ -51,8 +53,11 @@ public class CommentServiceManager implements CommentService {
 
     @Override
     public List<CommentDtoResponse> getCommentsOfEventPublic(Long eventId, Integer from, Integer size) {
+        Pageable pageable = PageRequest.of(from / size, size);
+        eventRepository.findById(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException(Event.class, eventId));
         List<CommentDtoResponse> responseCommentsDTO = commentMapper.toResponseCommentDto(commentRepository
-                .findAllCommentsForEvent(eventId, from, size));
+                .findAllCommentsForEvent(eventId, pageable));
 
         log.info("Получение всех комментариев для события c id {} по параметрам:  from: {}, size: {}.",
                 eventId, from, size);
