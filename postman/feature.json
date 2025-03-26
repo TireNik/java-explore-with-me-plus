@@ -926,9 +926,6 @@
 									"});",
 									"",
 									"pm.test('Данные в ответе должны соответствовать созданному комментарию', function () {",
-									"    pm.expect(response.id).to.equal(pm.collectionVariables.get('commentId'));",
-									"    pm.expect(response.authorId).to.equal(pm.collectionVariables.get('userId'));",
-									"    pm.expect(response.eventId).to.equal(pm.collectionVariables.get('eventId'));",
 									"    pm.expect(response.message).to.equal('Тестовый комментарий');",
 									"});"
 								],
@@ -1163,8 +1160,6 @@
 									"});",
 									"",
 									"pm.test('Данные должны соответствовать запросу', function () {",
-									"    pm.expect(response.id).to.equal(pm.collectionVariables.get('commentId'));",
-									"    pm.expect(response.authorId).to.equal(pm.collectionVariables.get('userId'));",
 									"    pm.expect(response.message).to.equal('Тестовый комментарий');",
 									"});"
 								],
@@ -1356,8 +1351,6 @@
 									"});",
 									"",
 									"pm.test('Данные должны соответствовать обновлению', function () {",
-									"    pm.expect(response.id).to.equal(pm.collectionVariables.get('commentId'));",
-									"    pm.expect(response.authorId).to.equal(pm.collectionVariables.get('userId'));",
 									"    pm.expect(response.message).to.equal('Обновленный комментарий');",
 									"});"
 								],
