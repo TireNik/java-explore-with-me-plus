@@ -18,6 +18,7 @@ import java.util.List;
 
 import static ru.practicum.util.PathConstants.EVENT_ID;
 import static ru.practicum.util.PathConstants.PRIVATE_EVENTS;
+import static ru.practicum.util.PathConstants.SUBSCRIPTIONS;
 
 @RestController
 @RequestMapping(PRIVATE_EVENTS)
@@ -60,6 +61,16 @@ public class PrivateEventController {
             @Valid @RequestBody UpdateEventUserRequestDto updateRequest) {
         EventFullDto updatedEvent = eventService.updateEvent(userId, eventId, updateRequest);
         return ResponseEntity.ok(updatedEvent);
+    }
+
+    @GetMapping(SUBSCRIPTIONS)
+    public ResponseEntity<List<EventShortDto>> getSubscribedEvents(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "0") @Min(0) int from,
+            @RequestParam(defaultValue = "10") @Min(0) int size,
+            HttpServletRequest request) {
+        List<EventShortDto> events = eventService.getSubscribedEvents(userId, from, size, request);
+        return ResponseEntity.ok(events);
     }
 
 }

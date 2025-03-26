@@ -1,6 +1,8 @@
 package ru.practicum.events.service;
 
 import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,7 @@ import ru.practicum.events.repository.*;
 import ru.practicum.requests.model.RequestStatus;
 import ru.practicum.requests.repository.RequestRepository;
 import ru.practicum.stats.client.StatClient;
+import ru.practicum.subscriptions.model.Subscription;
 import ru.practicum.user.model.User;
 import ru.practicum.user.repository.UserRepository;
 
@@ -381,6 +384,36 @@ public class EventServiceImpl implements EventService {
 
         Event updatedEvent = eventRepository.save(event);
         return eventMapper.toEventFullDto(updatedEvent);
+    }
+
+    @Override
+    public List<EventShortDto> getSubscribedEvents(Long userId, int from, int size, HttpServletRequest request) {
+        statClient.hit(new StatDto(
+                null,
+                "main-service",
+                request.getRequestURI(),
+                request.getRemoteAddr(),
+                LocalDateTime.now().format(FORMATTER)
+        ));
+
+        Pageable pageable = PageRequest.of(
+                from / size, size, Sort.by(Sort.Direction.DESC, "eventDate"));
+
+        Specification<Event> spec = (root, query, cb) -> {
+            Subquery<Long> subquery = query.subquery(Long.class);
+            Root<Subscription> subRoot = subquery.from(Subscription.class);
+            subquery.select(subRoot.get("subscribedTo").get("id"))
+                    .where(cb.equal(subRoot.get("subscriber").get("id"), userId));
+            return cb.and(
+                    root.get("initiator").get("id").in(subquery),
+                    cb.equal(root.get("state"), EventState.PUBLISHED)
+            );
+        };
+
+        List<Event> events = eventRepository.findAll(spec, pageable).getContent();
+        return events.stream()
+                .map(eventMapper::toEventShortDto)
+                .toList();
     }
 
     private Event checkEventExists(Long eventId) {
