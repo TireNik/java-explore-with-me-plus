@@ -1,6 +1,7 @@
 package ru.practicum.user.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import ru.practicum.user.repository.UserRepository;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -46,12 +48,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void delete(Long id) {
-        checkUserExists(id);
+        User user = checkUserExists(id);
         userRepository.deleteById(id);
+        log.info("Пользователь {} удалён", user);
     }
 
-    private void checkUserExists(Long id) {
-        userRepository.findById(id)
+    private User checkUserExists(Long id) {
+        return userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден или недоступен"));
     }
 }
